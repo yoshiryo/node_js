@@ -1,26 +1,47 @@
-// IPv4(X.X.X.X)形式のIPアドレスをNumber型に変換する
-const ip2long = (ip) => parseInt(
-    ip.split(".").map(e => Number(e).toString(2).padStart(8, '0')).join(''), 2)
+process.stdin.setEncoding("utf8");
 
-const inRange = (remoteIp, acceptIp, cidr) => {
-    cidr = Number(cidr)
-    const remoteIpNetwork = remoteIp >>> (32 - cidr)
-    const acceptIpNetwork = acceptIp >>> (32 - cidr)
-    return remoteIpNetwork === acceptIpNetwork
-}
-// 短くするとこう書ける
-// const inRange = (remoteIp, acceptIp, cidr) => remoteIp >>> (32 - Number(cidr)) === acceptIp >>> (32 - Number(cidr))
+var lines = []; 
+var reader = require("readline").createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
-console.log(`192.168.0.1 は 192.168.0.254/24 に含まれ${ inRange(ip2long("192.168.0.1"), ip2long("192.168.0.254"), 28) ? 'ます' : 'ません' }`)
-// 192.168.0.1 は 192.168.0.254/24 に含まれます
-console.log(`192.168.1.0 は 192.168.0.254/24 に含まれ${ inRange(ip2long("192.168.1.0"), ip2long("192.168.0.254"), 24) ? 'ます' : 'ません' }`)
-// 192.168.1.0 は 192.168.0.254/24 に含まれません
+reader.on("line", (line) => {
+  lines.push(line);
+});
+reader.on("close", () => {
 
-console.log(ip2long("10.168.1.0"))
-console.log(ip2long("192.168.0.254"))
+    function ip2long(ip_array){
+        let ip_long = "";
+        for (let i = 0; i < 4; i++) {
+            let ip2 = Number(ip_array[i]).toString(2);
+            ip_long += ("00000000" + ip2).slice(-8);
+        }
+        return parseInt(ip_long, 2);
+    }
 
-cidr = Number(24)
-const remoteIpNetwork = ip2long("192.168.1.0") >>> (32 - cidr)
-const acceptIpNetwork = ip2long("192.168.0.254") >>> (32 - cidr)
+    function inRange(remote, accept, cidr) {
+        const remoteIpNetwork = remote >>> (32 - cidr);
+        const acceptIpNetwork = accept >>> (32 - cidr);
+        return remoteIpNetwork === acceptIpNetwork
+    }  
+    // ネットワークアドレス
+    function getNetworkAddr(ip, mask) {
+        return (ip & mask) >>> 0
+    }
+    // ブロードキャストアドレス
+    function getBroadcastAddr(ip, mask) {
+        return (ip | ~subnetmask) >>> 0
+    }
+    
+    //この中に処理を記述
+    let ip = lines[0];
+    let mask = "10.1.160.0/20".split("/");
+    let ip_array = ip.split(".");
+    let ip_mask_array = mask[0].split(".");
+    let cidr = parseInt(mask[1], 10);
 
-console.log(remoteIpNetwork, acceptIpNetwork)
+    let remote = ip2long(ip_array);
+    let accept = ip2long(ip_mask_array);
+    console.log();
+});
